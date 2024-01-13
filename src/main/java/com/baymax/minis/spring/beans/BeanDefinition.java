@@ -1,4 +1,4 @@
-package com.baymax.minis.spring;
+package com.baymax.minis.spring.beans;
 
 /**
  * bean定义
