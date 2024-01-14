@@ -1,5 +1,6 @@
 package com.baymax.minis.spring.core;
 
+import com.baymax.minis.spring.util.IteratorCastUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -25,7 +26,7 @@ public class ClassPathXmlResource implements Resource {
         try {
             this.document = saxReader.read(xmlPath);
             this.rootElement = document.getRootElement();
-            this.elementIterator = this.rootElement.elementIterator();
+            this.elementIterator = IteratorCastUtil.getTypedIterator(this.rootElement.elementIterator(), Element.class);
         } catch (DocumentException e) {
             e.printStackTrace();
         }
@@ -40,4 +41,6 @@ public class ClassPathXmlResource implements Resource {
     public Object next() {
         return this.elementIterator.next();
     }
+
+
 }
