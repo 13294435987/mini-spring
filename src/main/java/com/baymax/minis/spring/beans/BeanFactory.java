@@ -13,12 +13,38 @@ public interface BeanFactory {
      * @param beanName bean的名称
      * @return bean的实例
      */
-    Object getBean(String beanName) throws NoSuchBeanDefinitionException;
+    Object getBean(String beanName) throws BeansException;
 
     /**
-     * 注册bean的定义信息
+     * 判断bean是否存在
      *
-     * @param beanDefinition bean的定义信息
+     * @param name bean的名称
+     * @return 是否存在
      */
-    void registerBeanDefinition(BeanDefinition beanDefinition);
+    boolean containsBean(String name);
+
+    /**
+     * 是否单例bean
+     *
+     * @param name bean的名称
+     * @return 是否单例bean
+     */
+    boolean isSingleton(String name);
+
+    /**
+     * 是否原型bean
+     *
+     * @param name bean的名称
+     * @return 是否原型bean
+     */
+    boolean isPrototype(String name);
+
+    /**
+     * 获取bean的类型
+     *
+     * @param name bean的名称
+     * @return bean的类型
+     */
+    Class<?> getType(String name);
+
 }

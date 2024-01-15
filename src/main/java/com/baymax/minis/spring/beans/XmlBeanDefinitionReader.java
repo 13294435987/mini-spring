@@ -3,6 +3,8 @@ package com.baymax.minis.spring.beans;
 import com.baymax.minis.spring.core.Resource;
 import org.dom4j.Element;
 
+import java.util.List;
+
 /**
  * XmlBeanDefinitionReader
  *
@@ -10,10 +12,10 @@ import org.dom4j.Element;
  */
 public class XmlBeanDefinitionReader {
 
-    private final BeanFactory beanFactory;
+    private final SimpleBeanFactory simpleBeanFactory;
 
-    public XmlBeanDefinitionReader(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+    public XmlBeanDefinitionReader(SimpleBeanFactory simpleBeanFactory) {
+        this.simpleBeanFactory = simpleBeanFactory;
     }
 
     /**
@@ -27,7 +29,31 @@ public class XmlBeanDefinitionReader {
             String beanId = element.attributeValue("id");
             String beanClassName = element.attributeValue("class");
             BeanDefinition beanDefinition = new BeanDefinition(beanId, beanClassName);
-            beanFactory.registerBeanDefinition(beanDefinition);
+            // handle properties
+            List<Element> propertyElements = element.elements("property");
+            PropertyValues propertyValues = new PropertyValues();
+            for (Element e : propertyElements) {
+                String pType = e.attributeValue("type");
+                String pName = e.attributeValue("name");
+                String pValue = e.attributeValue("value");
+                propertyValues.addPropertyValue(new PropertyValue(pType, pName, pValue));
+            }
+            beanDefinition.setPropertyValues(propertyValues);
+            // end of handle properties
+
+            // get constructor
+            List<Element> constructorElements = element.elements("constructor-arg");
+            ArgumentValues argumentValues = new ArgumentValues();
+            for (Element e : constructorElements) {
+                String pType = e.attributeValue("type");
+                String pName = e.attributeValue("name");
+                String pValue = e.attributeValue("value");
+                argumentValues.addArgumentValue(new ArgumentValue(pType, pName, pValue));
+            }
+            beanDefinition.setConstructorArgumentValues(argumentValues);
+            // end of handle constructor
+
+            simpleBeanFactory.registerBeanDefinition(beanId, beanDefinition);
         }
     }
 }
