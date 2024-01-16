@@ -3,6 +3,7 @@ package com.baymax.minis.spring.beans;
 import com.baymax.minis.spring.core.Resource;
 import org.dom4j.Element;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,18 +29,8 @@ public class XmlBeanDefinitionReader {
             Element element = (Element) resource.next();
             String beanId = element.attributeValue("id");
             String beanClassName = element.attributeValue("class");
+
             BeanDefinition beanDefinition = new BeanDefinition(beanId, beanClassName);
-            // handle properties
-            List<Element> propertyElements = element.elements("property");
-            PropertyValues propertyValues = new PropertyValues();
-            for (Element e : propertyElements) {
-                String pType = e.attributeValue("type");
-                String pName = e.attributeValue("name");
-                String pValue = e.attributeValue("value");
-                propertyValues.addPropertyValue(new PropertyValue(pType, pName, pValue));
-            }
-            beanDefinition.setPropertyValues(propertyValues);
-            // end of handle properties
 
             // get constructor
             List<Element> constructorElements = element.elements("constructor-arg");
@@ -52,6 +43,31 @@ public class XmlBeanDefinitionReader {
             }
             beanDefinition.setConstructorArgumentValues(argumentValues);
             // end of handle constructor
+
+            // handle properties
+            List<Element> propertyElements = element.elements("property");
+            PropertyValues propertyValues = new PropertyValues();
+            List<String> refs = new ArrayList<>();
+            for (Element e : propertyElements) {
+                String pType = e.attributeValue("type");
+                String pName = e.attributeValue("name");
+                String pValue = e.attributeValue("value");
+                String pRef = e.attributeValue("ref");
+                String pV = "";
+                boolean isRef = false;
+                if (pValue != null && !"".equals(pValue)) {
+                    pV = pValue;
+                } else if (pRef != null && !"".equals(pRef)) {
+                    isRef = true;
+                    pV = pRef;
+                    refs.add(pRef);
+                }
+                propertyValues.addPropertyValue(new PropertyValue(pType, pName, pV, isRef));
+            }
+            beanDefinition.setPropertyValues(propertyValues);
+            String[] refArray = refs.toArray(new String[0]);
+            beanDefinition.setDependsOn(refArray);
+            // end of handle properties
 
             simpleBeanFactory.registerBeanDefinition(beanId, beanDefinition);
         }

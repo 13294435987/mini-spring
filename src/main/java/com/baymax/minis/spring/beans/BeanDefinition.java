@@ -20,7 +20,7 @@ public class BeanDefinition {
     /**
      * 表示 Bean 要不要在加载的时候初始化
      */
-    private boolean lazyInit = false;
+    private boolean lazyInit = true;
 
     /**
      * 对应bean标签的构造器参数属性

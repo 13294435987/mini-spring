@@ -11,19 +11,20 @@ public class ArgumentValues {
 
     private final List<ArgumentValue> argumentValueList = new ArrayList<>();
 
+
     public ArgumentValues() {
     }
 
     public void addArgumentValue(ArgumentValue argumentValue) {
-        this.argumentValueList.add(argumentValue);
+        argumentValueList.add(argumentValue);
     }
 
     public ArgumentValue getIndexedArgumentValue(int index) {
-        return this.argumentValueList.get(index);
+        return argumentValueList.get(index);
     }
 
     public int getArgumentCount() {
-        return (this.argumentValueList.size());
+        return argumentValueList.size();
     }
 
     public boolean isEmpty() {

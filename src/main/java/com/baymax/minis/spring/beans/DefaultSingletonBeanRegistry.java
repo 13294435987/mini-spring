@@ -37,8 +37,14 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
     @Override
     public void registerSingleton(String beanName, Object singletonObject) {
         synchronized (this.singletonObjects) {
+            Object oldObject = singletonObjects.get(beanName);
+            if (oldObject != null) {
+                throw new IllegalStateException("Could not register object [" + singletonObject +
+                        "] under bean name '" + beanName + "': there is already object [" + oldObject + "] bound");
+            }
             this.beanNames.add(beanName);
             this.singletonObjects.put(beanName, singletonObject);
+            System.out.println(" bean has registered............. " + beanName);
         }
     }
 
