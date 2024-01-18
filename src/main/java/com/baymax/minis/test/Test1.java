@@ -1,7 +1,7 @@
 package com.baymax.minis.test;
 
 import com.baymax.minis.spring.beans.BeansException;
-import com.baymax.minis.spring.beans.NoSuchBeanDefinitionException;
+import com.baymax.minis.spring.beans.factory.NoSuchBeanDefinitionException;
 import com.baymax.minis.spring.context.ClassPathXmlApplicationContext;
 
 /**
@@ -12,10 +12,10 @@ import com.baymax.minis.spring.context.ClassPathXmlApplicationContext;
 public class Test1 {
     public static void main(String[] args) throws NoSuchBeanDefinitionException, BeansException {
         ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("beans.xml");
-        AService aService;
+        BaseService bService;
         try {
-            aService = (AService) ctx.getBean("aservice");
-            aService.sayHello();
+            bService = (BaseService) ctx.getBean("baseservice");
+            bService.sayHello();
         } catch (BeansException e) {
             e.printStackTrace();
         }

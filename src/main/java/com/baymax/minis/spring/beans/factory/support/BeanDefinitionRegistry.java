@@ -1,4 +1,6 @@
-package com.baymax.minis.spring.beans;
+package com.baymax.minis.spring.beans.factory.support;
+
+import com.baymax.minis.spring.beans.factory.config.BeanDefinition;
 
 /**
  * 集中存放BeanDefinition的仓库，同时提供操作的方法

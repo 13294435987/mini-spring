@@ -1,4 +1,4 @@
-package com.baymax.minis.spring.beans;
+package com.baymax.minis.spring.beans.factory.config;
 
 /**
  * 管理单例 Bean的方法规范

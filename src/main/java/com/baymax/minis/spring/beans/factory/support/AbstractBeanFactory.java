@@ -1,4 +1,12 @@
-package com.baymax.minis.spring.beans;
+package com.baymax.minis.spring.beans.factory.support;
+
+import com.baymax.minis.spring.beans.BeansException;
+import com.baymax.minis.spring.beans.PropertyValue;
+import com.baymax.minis.spring.beans.PropertyValues;
+import com.baymax.minis.spring.beans.factory.BeanFactory;
+import com.baymax.minis.spring.beans.factory.config.BeanDefinition;
+import com.baymax.minis.spring.beans.factory.config.ConstructorArgumentValue;
+import com.baymax.minis.spring.beans.factory.config.ConstructorArgumentValues;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -7,11 +15,12 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * SimpleBeanFactory
+ * 抽象的bean工厂
  *
- * @author hujiabin wrote in 2024/1/13 22:23
+ * @author hujiabin wrote in 2024/1/17 23:13
  */
-public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory, BeanDefinitionRegistry {
+public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory, BeanDefinitionRegistry {
+
     /**
      * 存储bean的名称
      */
@@ -27,8 +36,7 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
      */
     private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 
-    public SimpleBeanFactory() {
-
+    public AbstractBeanFactory() {
     }
 
     /**
@@ -44,14 +52,16 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
         });
     }
 
+
     @Override
     public Object getBean(String beanName) throws BeansException {
         // 先创建获取bean的实例
         Object singleton = getSingleton(beanName);
-        // 不存在 则创建
         if (singleton == null) {
+            // 如果不存在，尝试从毛胚实例中获取
             singleton = earlySingletonObjects.get(beanName);
             if (singleton == null) {
+                // 如果毛坯中也没有，就创建一个bean并注册
                 System.out.println("get bean null -------------- " + beanName);
                 BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
                 if (null == beanDefinition) {
@@ -61,9 +71,15 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
                 registerBean(beanName, singleton);
                 // BeanPostprocessor
                 // step 1 : postProcessBeforeInitialization
-                // step 2 : afterPropertiesSet
-                // step 3 : init-method
-                // step 4 : postProcessAfterInitialization。
+                applyBeanPostProcessorsBeforeInitialization(singleton, beanName);
+
+                // step 2 : init-method
+                if (beanDefinition.getInitMethodName() != null && !"".equals(beanDefinition.getInitMethodName())) {
+                    invokeInitMethod(beanDefinition, singleton);
+                }
+
+                // step 3 : postProcessAfterInitialization
+                applyBeanPostProcessorsAfterInitialization(singleton, beanName);
             }
         }
         if (singleton == null) {
@@ -72,10 +88,24 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
         return singleton;
     }
 
-
     @Override
     public boolean containsBean(String name) {
         return containsSingleton(name);
+    }
+
+    private void invokeInitMethod(BeanDefinition bd, Object obj) {
+        Class<?> clz = obj.getClass();
+        Method method = null;
+        try {
+            method = clz.getMethod(bd.getInitMethodName());
+        } catch (NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+        try {
+            Objects.requireNonNull(method).invoke(obj);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -101,8 +131,6 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
      */
     public void registerBean(String beanName, Object obj) {
         registerSingleton(beanName, obj);
-
-        // BeanPostprocessor
     }
 
     @Override
@@ -146,23 +174,23 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
             e.printStackTrace();
         }
         // 属性填充
-        handleProperties(bd, clz, obj);
+        populateBean(bd, clz, obj);
         return obj;
     }
 
     private Object doCreateBean(BeanDefinition bd) {
-        Class<?> clz = null;
+        Class<?> clz;
         Object obj = null;
-        Constructor<?> con = null;
+        Constructor<?> con;
         try {
             clz = Class.forName(bd.getClassName());
             // 处理构造器参数
-            ArgumentValues argumentValues = bd.getConstructorArgumentValues();
+            ConstructorArgumentValues argumentValues = bd.getConstructorArgumentValues();
             if (!argumentValues.isEmpty()) {
                 Class<?>[] paramTypes = new Class<?>[argumentValues.getArgumentCount()];
                 Object[] paramValues = new Object[argumentValues.getArgumentCount()];
                 for (int i = 0; i < argumentValues.getArgumentCount(); i++) {
-                    ArgumentValue argumentValue = argumentValues.getIndexedArgumentValue(i);
+                    ConstructorArgumentValue argumentValue = argumentValues.getIndexedArgumentValue(i);
                     // 对于不同类型的属性分别处理
                     if ("String".equals(argumentValue.getType()) || "java.lang.String".equals(argumentValue.getType())) {
                         paramTypes[i] = String.class;
@@ -196,6 +224,10 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
         }
         System.out.println(bd.getId() + " bean created. " + bd.getClassName() + " : " + Objects.requireNonNull(obj).toString());
         return obj;
+    }
+
+    private void populateBean(BeanDefinition bd, Class<?> clz, Object obj) {
+        handleProperties(bd, clz, obj);
     }
 
     private void handleProperties(BeanDefinition bd, Class<?> clz, Object obj) {
@@ -254,4 +286,27 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
             }
         }
     }
+
+    /**
+     * bean初始化之前执行 交由子类去实现
+     *
+     * @param existingBean bean对象
+     * @param beanName     bean的名称
+     * @return 处理后的bean
+     * @throws BeansException 异常
+     */
+    abstract public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName)
+            throws BeansException;
+
+    /**
+     * bean初始化之前后执行 交由子类去实现
+     *
+     * @param existingBean bean对象
+     * @param beanName     bean的名称
+     * @return 处理后的bean
+     * @throws BeansException 异常
+     */
+    abstract public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName)
+            throws BeansException;
+
 }

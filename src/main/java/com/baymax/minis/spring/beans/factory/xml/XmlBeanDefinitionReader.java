@@ -1,5 +1,10 @@
-package com.baymax.minis.spring.beans;
+package com.baymax.minis.spring.beans.factory.xml;
 
+import com.baymax.minis.spring.beans.*;
+import com.baymax.minis.spring.beans.factory.config.AutowireCapableBeanFactory;
+import com.baymax.minis.spring.beans.factory.config.BeanDefinition;
+import com.baymax.minis.spring.beans.factory.config.ConstructorArgumentValue;
+import com.baymax.minis.spring.beans.factory.config.ConstructorArgumentValues;
 import com.baymax.minis.spring.core.Resource;
 import org.dom4j.Element;
 
@@ -13,9 +18,9 @@ import java.util.List;
  */
 public class XmlBeanDefinitionReader {
 
-    private final SimpleBeanFactory simpleBeanFactory;
+    private final AutowireCapableBeanFactory simpleBeanFactory;
 
-    public XmlBeanDefinitionReader(SimpleBeanFactory simpleBeanFactory) {
+    public XmlBeanDefinitionReader(AutowireCapableBeanFactory simpleBeanFactory) {
         this.simpleBeanFactory = simpleBeanFactory;
     }
 
@@ -29,17 +34,18 @@ public class XmlBeanDefinitionReader {
             Element element = (Element) resource.next();
             String beanId = element.attributeValue("id");
             String beanClassName = element.attributeValue("class");
+            String initMethodName = element.attributeValue("init-method");
 
             BeanDefinition beanDefinition = new BeanDefinition(beanId, beanClassName);
 
             // get constructor
             List<Element> constructorElements = element.elements("constructor-arg");
-            ArgumentValues argumentValues = new ArgumentValues();
+            ConstructorArgumentValues argumentValues = new ConstructorArgumentValues();
             for (Element e : constructorElements) {
                 String pType = e.attributeValue("type");
                 String pName = e.attributeValue("name");
                 String pValue = e.attributeValue("value");
-                argumentValues.addArgumentValue(new ArgumentValue(pType, pName, pValue));
+                argumentValues.addArgumentValue(new ConstructorArgumentValue(pType, pName, pValue));
             }
             beanDefinition.setConstructorArgumentValues(argumentValues);
             // end of handle constructor
@@ -69,6 +75,7 @@ public class XmlBeanDefinitionReader {
             beanDefinition.setDependsOn(refArray);
             // end of handle properties
 
+            beanDefinition.setInitMethodName(initMethodName);
             simpleBeanFactory.registerBeanDefinition(beanId, beanDefinition);
         }
     }

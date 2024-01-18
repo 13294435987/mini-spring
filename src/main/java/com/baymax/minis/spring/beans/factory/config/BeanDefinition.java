@@ -1,4 +1,6 @@
-package com.baymax.minis.spring.beans;
+package com.baymax.minis.spring.beans.factory.config;
+
+import com.baymax.minis.spring.beans.PropertyValues;
 
 /**
  * bean定义
@@ -25,7 +27,7 @@ public class BeanDefinition {
     /**
      * 对应bean标签的构造器参数属性
      */
-    private ArgumentValues constructorArgumentValues;
+    private ConstructorArgumentValues constructorArgumentValues;
 
     /**
      * 对应bean标签的property标签属性
@@ -117,12 +119,12 @@ public class BeanDefinition {
         return this.dependsOn;
     }
 
-    public void setConstructorArgumentValues(ArgumentValues constructorArgumentValues) {
+    public void setConstructorArgumentValues(ConstructorArgumentValues constructorArgumentValues) {
         this.constructorArgumentValues =
-                (constructorArgumentValues != null ? constructorArgumentValues : new ArgumentValues());
+                (constructorArgumentValues != null ? constructorArgumentValues : new ConstructorArgumentValues());
     }
 
-    public ArgumentValues getConstructorArgumentValues() {
+    public ConstructorArgumentValues getConstructorArgumentValues() {
         return this.constructorArgumentValues;
     }
 

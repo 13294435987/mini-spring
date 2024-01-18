@@ -1,4 +1,4 @@
-package com.baymax.minis.spring.beans;
+package com.baymax.minis.spring.beans.factory.config;
 
 import java.util.*;
 
@@ -7,19 +7,19 @@ import java.util.*;
  *
  * @author hujiabin wrote in 2024/1/14 20:46
  */
-public class ArgumentValues {
+public class ConstructorArgumentValues {
 
-    private final List<ArgumentValue> argumentValueList = new ArrayList<>();
+    private final List<ConstructorArgumentValue> argumentValueList = new ArrayList<>();
 
 
-    public ArgumentValues() {
+    public ConstructorArgumentValues() {
     }
 
-    public void addArgumentValue(ArgumentValue argumentValue) {
+    public void addArgumentValue(ConstructorArgumentValue argumentValue) {
         argumentValueList.add(argumentValue);
     }
 
-    public ArgumentValue getIndexedArgumentValue(int index) {
+    public ConstructorArgumentValue getIndexedArgumentValue(int index) {
         return argumentValueList.get(index);
     }
 

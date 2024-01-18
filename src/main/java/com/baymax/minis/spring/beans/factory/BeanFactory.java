@@ -1,4 +1,6 @@
-package com.baymax.minis.spring.beans;
+package com.baymax.minis.spring.beans.factory;
+
+import com.baymax.minis.spring.beans.BeansException;
 
 /**
  * BeanFactory

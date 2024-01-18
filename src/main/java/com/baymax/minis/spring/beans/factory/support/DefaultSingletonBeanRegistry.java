@@ -1,4 +1,6 @@
-package com.baymax.minis.spring.beans;
+package com.baymax.minis.spring.beans.factory.support;
+
+import com.baymax.minis.spring.beans.factory.config.SingletonBeanRegistry;
 
 import java.util.ArrayList;
 import java.util.List;

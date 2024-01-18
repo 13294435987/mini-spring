@@ -1,4 +1,4 @@
-package com.baymax.minis.spring.beans;
+package com.baymax.minis.spring.beans.factory;
 
 /**
  * NoSuchBeanDefinitionException
