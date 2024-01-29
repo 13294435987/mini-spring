@@ -24,12 +24,12 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     /**
      * 存储bean的名称
      */
-    private final List<String> beanDefinitionNames = new ArrayList<>();
+    protected final List<String> beanDefinitionNames = new ArrayList<>();
 
     /**
      * 存储bean的名称和对应的实例化对象
      */
-    private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
+    protected final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
 
     /**
      * 存储早期为完全实例化的bean（未填充属性），为了解决循环依赖问题

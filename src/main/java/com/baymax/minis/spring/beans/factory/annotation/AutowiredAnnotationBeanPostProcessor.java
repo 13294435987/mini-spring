@@ -1,7 +1,7 @@
 package com.baymax.minis.spring.beans.factory.annotation;
 
 import com.baymax.minis.spring.beans.BeansException;
-import com.baymax.minis.spring.beans.factory.config.AutowireCapableBeanFactory;
+import com.baymax.minis.spring.beans.factory.BeanFactory;
 import com.baymax.minis.spring.beans.factory.config.BeanPostProcessor;
 
 import java.lang.reflect.Field;
@@ -14,7 +14,7 @@ import java.util.Arrays;
  */
 public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
 
-    private AutowireCapableBeanFactory beanFactory;
+    private BeanFactory beanFactory;
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -46,11 +46,12 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
         return null;
     }
 
-    public AutowireCapableBeanFactory getBeanFactory() {
+    public BeanFactory getBeanFactory() {
         return beanFactory;
     }
 
-    public void setBeanFactory(AutowireCapableBeanFactory beanFactory) {
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 }

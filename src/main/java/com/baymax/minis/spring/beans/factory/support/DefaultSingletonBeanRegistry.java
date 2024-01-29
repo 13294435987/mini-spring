@@ -2,10 +2,7 @@ package com.baymax.minis.spring.beans.factory.support;
 
 import com.baymax.minis.spring.beans.factory.config.SingletonBeanRegistry;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -18,7 +15,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
     /**
      * 容器中存放所有bean的名称的列表
      */
-    protected List<String> beanNames = new ArrayList<>();
+    protected final List<String> beanNames = new ArrayList<>();
 
     /**
      * 容器中存放所有bean实例的map
@@ -29,12 +26,12 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
     /**
      * 存储key对应的bean依赖的bean
      */
-    protected Map<String, Set<String>> dependentBeanMap = new ConcurrentHashMap<>(64);
+    protected final Map<String, Set<String>> dependentBeanMap = new ConcurrentHashMap<>(64);
 
     /**
      * 存储被key对应的bean所有依赖的bean
      */
-    protected Map<String, Set<String>> dependenciesForBeanMap = new ConcurrentHashMap<>(64);
+    protected final Map<String, Set<String>> dependenciesForBeanMap = new ConcurrentHashMap<>(64);
 
     @Override
     public void registerSingleton(String beanName, Object singletonObject) {
@@ -65,26 +62,54 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
         return (String[]) beanNames.toArray();
     }
 
-    protected void removeSingleton(String beanName) {
-        synchronized (this.singletonObjects) {
+    /**
+     * 移除单例对象
+     *
+     * @param beanName bean名称
+     */
+    public void removeSingleton(String beanName) {
+        synchronized (singletonObjects) {
             this.singletonObjects.remove(beanName);
             this.beanNames.remove(beanName);
         }
     }
 
-    protected void registerDependentBean(String beanName, String dependentBeanName) {
+    public void registerDependentBean(String beanName, String dependentBeanName) {
+        Set<String> dependentBeans = dependentBeanMap.get(beanName);
+        // 如果已经存在了，就不需要再注册了
+        if (dependentBeans != null && dependentBeans.contains(dependentBeanName)) {
+            return;
+        }
+        // No entry yet -> fully synchronized manipulation of the dependentBeans Set
+        synchronized (dependentBeanMap) {
+            dependentBeans = dependentBeanMap.computeIfAbsent(beanName, k -> new LinkedHashSet<>(8));
+            dependentBeans.add(beanName);
+        }
 
+        synchronized (dependenciesForBeanMap) {
+            Set<String> dependenciesForBean = dependenciesForBeanMap.computeIfAbsent(dependentBeanName,
+                    k -> new LinkedHashSet<String>(8));
+            dependenciesForBean.add(beanName);
+        }
     }
 
-    protected boolean hasDependentBean(String beanName) {
-        return false;
+    public boolean hasDependentBean(String beanName) {
+        return dependentBeanMap.containsKey(beanName);
     }
 
-    protected String[] getDependentBeans(String beanName) {
-        return null;
+    public String[] getDependentBeans(String beanName) {
+        Set<String> dependentBeans = dependentBeanMap.get(beanName);
+        if (dependentBeans == null) {
+            return new String[0];
+        }
+        return (String[]) dependentBeans.toArray();
     }
 
-    protected String[] getDependenciesForBean(String beanName) {
-        return null;
+    public String[] getDependenciesForBean(String beanName) {
+        Set<String> dependenciesForBean = this.dependenciesForBeanMap.get(beanName);
+        if (dependenciesForBean == null) {
+            return new String[0];
+        }
+        return (String[]) dependenciesForBean.toArray();
     }
 }

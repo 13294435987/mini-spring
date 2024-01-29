@@ -1,6 +1,7 @@
 package com.baymax.minis.spring.beans.factory.config;
 
 import com.baymax.minis.spring.beans.BeansException;
+import com.baymax.minis.spring.beans.factory.BeanFactory;
 
 /**
  * bean处理器
@@ -28,4 +29,11 @@ public interface BeanPostProcessor {
      * @throws BeansException 异常
      */
     Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException;
+
+    /**
+     * 设置bean工厂
+     *
+     * @param beanFactory bean工厂
+     */
+    void setBeanFactory(BeanFactory beanFactory);
 }

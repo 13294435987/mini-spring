@@ -5,6 +5,7 @@ import com.baymax.minis.spring.beans.factory.config.AutowireCapableBeanFactory;
 import com.baymax.minis.spring.beans.factory.config.BeanDefinition;
 import com.baymax.minis.spring.beans.factory.config.ConstructorArgumentValue;
 import com.baymax.minis.spring.beans.factory.config.ConstructorArgumentValues;
+import com.baymax.minis.spring.beans.factory.support.DefaultListableBeanFactory;
 import com.baymax.minis.spring.core.Resource;
 import org.dom4j.Element;
 
@@ -18,9 +19,9 @@ import java.util.List;
  */
 public class XmlBeanDefinitionReader {
 
-    private final AutowireCapableBeanFactory simpleBeanFactory;
+    private final DefaultListableBeanFactory simpleBeanFactory;
 
-    public XmlBeanDefinitionReader(AutowireCapableBeanFactory simpleBeanFactory) {
+    public XmlBeanDefinitionReader(DefaultListableBeanFactory simpleBeanFactory) {
         this.simpleBeanFactory = simpleBeanFactory;
     }
 
@@ -34,7 +35,6 @@ public class XmlBeanDefinitionReader {
             Element element = (Element) resource.next();
             String beanId = element.attributeValue("id");
             String beanClassName = element.attributeValue("class");
-            String initMethodName = element.attributeValue("init-method");
 
             BeanDefinition beanDefinition = new BeanDefinition(beanId, beanClassName);
 
@@ -74,8 +74,6 @@ public class XmlBeanDefinitionReader {
             String[] refArray = refs.toArray(new String[0]);
             beanDefinition.setDependsOn(refArray);
             // end of handle properties
-
-            beanDefinition.setInitMethodName(initMethodName);
             simpleBeanFactory.registerBeanDefinition(beanId, beanDefinition);
         }
     }
