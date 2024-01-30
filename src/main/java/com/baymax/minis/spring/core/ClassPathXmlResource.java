@@ -34,12 +34,12 @@ public class ClassPathXmlResource implements Resource {
 
     @Override
     public boolean hasNext() {
-        return this.elementIterator.hasNext();
+        return elementIterator.hasNext();
     }
 
     @Override
     public Object next() {
-        return this.elementIterator.next();
+        return elementIterator.next();
     }
 
 
