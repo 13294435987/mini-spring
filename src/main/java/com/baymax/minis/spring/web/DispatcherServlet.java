@@ -23,6 +23,8 @@ public class DispatcherServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
+    private WebApplicationContext webApplicationContext;
+
     /**
      * servlet.xml的配置地址
      */
@@ -72,6 +74,8 @@ public class DispatcherServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
+
+        this.webApplicationContext = (WebApplicationContext) this.getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
 
         sContextConfigLocation = config.getInitParameter("contextConfigLocation");
 
@@ -138,14 +142,14 @@ public class DispatcherServlet extends HttpServlet {
 
     protected void initMapping() {
         for (String controllerName : controllerNames) {
-            Class<?> controllerClazz = controllerClasses.get(controllerName);
-            Object controllerObj = controllerObjs.get(controllerName);
-            Method[] methods = controllerClazz.getDeclaredMethods();
+            Class<?> clazz = controllerClasses.get(controllerName);
+            Object obj = controllerObjs.get(controllerName);
+            Method[] methods = clazz.getDeclaredMethods();
             for (Method method : methods) {
                 if (method.isAnnotationPresent(RequestMapping.class)) {
                     String urlMapping = method.getAnnotation(RequestMapping.class).value();
                     urlMappingNames.add(urlMapping);
-                    mappingObjs.put(urlMapping, controllerObj);
+                    mappingObjs.put(urlMapping, obj);
                     mappingMethods.put(urlMapping, method);
                 }
             }
