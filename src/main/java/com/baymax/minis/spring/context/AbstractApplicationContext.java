@@ -64,6 +64,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         return beanFactoryPostProcessors;
     }
 
+    @Override
     public void refresh() throws BeansException, IllegalStateException {
 
         postProcessBeanFactory(getBeanFactory());
@@ -82,36 +83,36 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     /**
      * 注册监听器
      */
-    abstract void registerListeners();
+    public abstract void registerListeners();
 
     /**
      * 初始化事件发布者
      */
-    abstract void initApplicationEventPublisher();
+    public abstract void initApplicationEventPublisher();
 
     /**
      * bean处理
      *
      * @param bf bean工厂
      */
-    abstract void postProcessBeanFactory(ConfigurableListableBeanFactory bf);
+    public abstract void postProcessBeanFactory(ConfigurableListableBeanFactory bf);
 
     /**
      * 注册bean处理器
      *
      * @param bf bean工厂
      */
-    abstract void registerBeanPostProcessors(ConfigurableListableBeanFactory bf);
+    public abstract void registerBeanPostProcessors(ConfigurableListableBeanFactory bf);
 
     /**
      * 开启上下文刷新
      */
-    abstract void onRefresh();
+    public abstract void onRefresh();
 
     /**
      * 刷新完成
      */
-    abstract void finishRefresh();
+    public abstract void finishRefresh();
 
     @Override
     public void registerSingleton(String beanName, Object singletonObject) {

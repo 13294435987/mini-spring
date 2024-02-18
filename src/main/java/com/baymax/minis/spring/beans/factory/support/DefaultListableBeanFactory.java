@@ -6,7 +6,6 @@ import com.baymax.minis.spring.beans.factory.config.BeanDefinition;
 import com.baymax.minis.spring.beans.factory.config.ConfigurableListableBeanFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * ioc引擎
@@ -15,6 +14,8 @@ import java.util.stream.Collectors;
  */
 public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory
         implements ConfigurableListableBeanFactory {
+
+    ConfigurableListableBeanFactory parentBeanFactory;
 
     @Override
     public int getBeanDefinitionCount() {
@@ -54,6 +55,20 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
             Object beanInstance = getBean(beanName);
             result.put(beanName, (T) beanInstance);
         }
+        return result;
+    }
+
+    public void setParent(ConfigurableListableBeanFactory beanFactory) {
+        this.parentBeanFactory = beanFactory;
+    }
+
+    @Override
+    public Object getBean(String beanName) throws BeansException {
+        Object result = super.getBean(beanName);
+        if (result == null) {
+            result = this.parentBeanFactory.getBean(beanName);
+        }
+
         return result;
     }
 }
